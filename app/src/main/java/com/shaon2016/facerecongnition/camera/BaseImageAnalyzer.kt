@@ -1,6 +1,7 @@
 package com.shaon2016.facerecongnition.camera
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
 import android.graphics.Rect
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
@@ -15,16 +16,24 @@ abstract class BaseImageAnalyzer<T> : ImageAnalysis.Analyzer {
     @SuppressLint("UnsafeExperimentalUsageError", "UnsafeOptInUsageError")
     override fun analyze(imageProxy: ImageProxy) {
         val mediaImage = imageProxy.image
-//        val bitmap  = BitmapUtils.getBitmap(imageProxy)
+        val bitmap = BitmapUtils.getBitmap(imageProxy)
 
-        mediaImage?.let {
-            faceDetectInImage(InputImage.fromMediaImage(it, imageProxy.imageInfo.rotationDegrees))
+        mediaImage?.let { image ->
+            faceDetectInImage(
+                InputImage.fromMediaImage(
+                    image,
+                    imageProxy.imageInfo.rotationDegrees
+                )
+            )
                 .addOnSuccessListener { faces ->
-                    onSuccess(
-                        faces,
-                        graphicOverlay,
-                        it.cropRect
-                    )
+                    bitmap?.let {
+                        onSuccess(
+                            faces,
+                            graphicOverlay,
+                            image.cropRect,
+                            bitmap
+                        )
+                    }
                 }
                 .addOnFailureListener {
                     graphicOverlay.clear()
@@ -43,7 +52,8 @@ abstract class BaseImageAnalyzer<T> : ImageAnalysis.Analyzer {
     protected abstract fun onSuccess(
         results: T,
         graphicOverlay: GraphicOverlay,
-        rect: Rect
+        rect: Rect,
+        bitmap: Bitmap
     )
 
     protected abstract fun onFailure(e: Exception)

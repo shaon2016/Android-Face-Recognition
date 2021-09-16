@@ -1,8 +1,6 @@
 package com.shaon2016.facerecongnition.camera
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Bitmap
 import android.util.Log
 import android.util.Size
 import androidx.camera.core.*
@@ -85,7 +83,7 @@ class CameraXManager(
     }
 
     private fun selectAnalyzer(): ImageAnalysis.Analyzer {
-        return FaceContourDetectionProcessor(graphicOverlay)
+        return FaceContourDetectionProcessor(graphicOverlay, context)
     }
 
     private fun configurePreviewUseCase() = Preview.Builder()

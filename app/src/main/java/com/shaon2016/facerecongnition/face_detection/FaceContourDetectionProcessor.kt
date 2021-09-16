@@ -1,5 +1,7 @@
 package com.shaon2016.facerecongnition.face_detection
 
+import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Rect
 import android.util.Log
 import com.google.android.gms.tasks.Task
@@ -11,8 +13,10 @@ import com.shaon2016.facerecongnition.camera.BaseImageAnalyzer
 import com.shaon2016.facerecongnition.camera.GraphicOverlay
 import java.io.IOException
 
-class FaceContourDetectionProcessor(private val view: GraphicOverlay) :
+class FaceContourDetectionProcessor(private val view: GraphicOverlay, private val context: Context) :
     BaseImageAnalyzer<List<Face>>() {
+
+    private val faceRecognitionProcessor by lazy { FaceRecognitionProcessor(context) }
 
     private val realTimeOpts = FaceDetectorOptions.Builder()
         .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
@@ -38,14 +42,18 @@ class FaceContourDetectionProcessor(private val view: GraphicOverlay) :
     override fun onSuccess(
         results: List<Face>,
         graphicOverlay: GraphicOverlay,
-        rect: Rect
+        rect: Rect, bitmap: Bitmap
     ) {
         graphicOverlay.clear()
         results.forEach {
             val faceGraphic = FaceContourGraphic(graphicOverlay, it, rect)
             graphicOverlay.add(faceGraphic)
+
+            // Recognize
+            faceRecognitionProcessor.recognize(it, bitmap)
         }
         graphicOverlay.postInvalidate()
+
     }
 
     override fun onFailure(e: Exception) {
