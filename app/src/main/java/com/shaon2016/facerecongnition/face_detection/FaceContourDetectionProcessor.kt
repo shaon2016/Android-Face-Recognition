@@ -21,10 +21,9 @@ class FaceContourDetectionProcessor(private val view: GraphicOverlay) :
 
     private val detector = FaceDetection.getClient(realTimeOpts)
 
-    override val graphicOverlay: GraphicOverlay
-        get() = view
+    override val graphicOverlay: GraphicOverlay get() = view
 
-    override fun detectInImage(image: InputImage): Task<List<Face>> {
+    override fun faceDetectInImage(image: InputImage): Task<List<Face>> {
         return detector.process(image)
     }
 
@@ -38,7 +37,6 @@ class FaceContourDetectionProcessor(private val view: GraphicOverlay) :
 
     override fun onSuccess(
         results: List<Face>,
-        graphicOverlay: GraphicOverlay,
         rect: Rect
     ) {
         graphicOverlay.clear()

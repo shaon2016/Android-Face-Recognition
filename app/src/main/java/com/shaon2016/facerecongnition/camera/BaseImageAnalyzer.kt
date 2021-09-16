@@ -11,33 +11,31 @@ abstract class BaseImageAnalyzer<T> : ImageAnalysis.Analyzer {
 
     abstract val graphicOverlay: GraphicOverlay
 
-    @SuppressLint("UnsafeExperimentalUsageError")
+    @SuppressLint("UnsafeExperimentalUsageError", "UnsafeOptInUsageError")
     override fun analyze(imageProxy: ImageProxy) {
         val mediaImage = imageProxy.image
         mediaImage?.let {
-            detectInImage(InputImage.fromMediaImage(it, imageProxy.imageInfo.rotationDegrees))
-                .addOnSuccessListener { results ->
+            faceDetectInImage(InputImage.fromMediaImage(it, imageProxy.imageInfo.rotationDegrees))
+                .addOnSuccessListener { faces ->
                     onSuccess(
-                        results,
-                        graphicOverlay,
+                        faces,
                         it.cropRect
                     )
-                    imageProxy.close()
                 }
                 .addOnFailureListener {
                     onFailure(it)
+                }.addOnCompleteListener {
                     imageProxy.close()
                 }
         }
     }
 
-    protected abstract fun detectInImage(image: InputImage): Task<T>
+    protected abstract fun faceDetectInImage(image: InputImage): Task<T>
 
     abstract fun stop()
 
     protected abstract fun onSuccess(
         results: T,
-        graphicOverlay: GraphicOverlay,
         rect: Rect
     )
 
