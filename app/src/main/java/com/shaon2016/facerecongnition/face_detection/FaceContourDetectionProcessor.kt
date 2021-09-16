@@ -16,7 +16,7 @@ class FaceContourDetectionProcessor(private val view: GraphicOverlay) :
 
     private val realTimeOpts = FaceDetectorOptions.Builder()
         .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
-        .setContourMode(FaceDetectorOptions.CONTOUR_MODE_NONE)
+        .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
         .build()
 
     private val detector = FaceDetection.getClient(realTimeOpts)
@@ -37,6 +37,7 @@ class FaceContourDetectionProcessor(private val view: GraphicOverlay) :
 
     override fun onSuccess(
         results: List<Face>,
+        graphicOverlay: GraphicOverlay,
         rect: Rect
     ) {
         graphicOverlay.clear()

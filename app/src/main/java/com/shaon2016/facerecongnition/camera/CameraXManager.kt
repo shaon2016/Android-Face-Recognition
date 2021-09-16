@@ -10,15 +10,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.face.FaceDetection
-import com.google.mlkit.vision.face.FaceDetectorOptions
 import com.shaon2016.facerecongnition.face_detection.FaceContourDetectionProcessor
-import com.shaon2016.facerecongnition.util.Helper
-import com.shaon2016.facerecongnition.util.Helper.toBitmap
-import com.shaon2016.facerecongnition.ml.MobileFaceNet
-import org.tensorflow.lite.DataType
-import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 

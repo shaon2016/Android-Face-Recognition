@@ -6,6 +6,7 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
+import com.shaon2016.facerecongnition.util.BitmapUtils
 
 abstract class BaseImageAnalyzer<T> : ImageAnalysis.Analyzer {
 
@@ -14,15 +15,20 @@ abstract class BaseImageAnalyzer<T> : ImageAnalysis.Analyzer {
     @SuppressLint("UnsafeExperimentalUsageError", "UnsafeOptInUsageError")
     override fun analyze(imageProxy: ImageProxy) {
         val mediaImage = imageProxy.image
+//        val bitmap  = BitmapUtils.getBitmap(imageProxy)
+
         mediaImage?.let {
             faceDetectInImage(InputImage.fromMediaImage(it, imageProxy.imageInfo.rotationDegrees))
                 .addOnSuccessListener { faces ->
                     onSuccess(
                         faces,
+                        graphicOverlay,
                         it.cropRect
                     )
                 }
                 .addOnFailureListener {
+                    graphicOverlay.clear()
+                    graphicOverlay.postInvalidate()
                     onFailure(it)
                 }.addOnCompleteListener {
                     imageProxy.close()
@@ -36,6 +42,7 @@ abstract class BaseImageAnalyzer<T> : ImageAnalysis.Analyzer {
 
     protected abstract fun onSuccess(
         results: T,
+        graphicOverlay: GraphicOverlay,
         rect: Rect
     )
 
