@@ -1,4 +1,4 @@
-package com.shaon2016.facerecongnition
+package com.shaon2016.facerecongnition.util
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -16,7 +16,7 @@ object Helper {
         return (dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT)).roundToInt()
     }
 
-    @SuppressLint("UnsafeExperimentalUsageError")
+    @SuppressLint("UnsafeExperimentalUsageError", "UnsafeOptInUsageError")
     fun ImageProxy.toBitmap(
         context: Context
     ): Bitmap? {
@@ -47,7 +47,7 @@ object Helper {
         )
     }
 
-    @SuppressLint("UnsafeExperimentalUsageError")
+    @SuppressLint("UnsafeExperimentalUsageError", "UnsafeOptInUsageError")
     fun ImageProxy.toScaledBitmap(
         context: Context,
         imageSizeX: Int,

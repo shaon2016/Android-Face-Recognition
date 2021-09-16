@@ -4,7 +4,7 @@ package com.shaon2016.facerecongnition
 import android.content.Context
 import android.content.res.AssetManager
 import android.graphics.Bitmap
-import android.util.Log
+import com.shaon2016.facerecongnition.util.C
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.gpu.CompatibilityList
 import org.tensorflow.lite.gpu.GpuDelegate
@@ -17,7 +17,6 @@ import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 import java.util.HashMap
-import kotlin.math.sqrt
 
 class TfliteClassifierHelper(private val context: Context) {
 

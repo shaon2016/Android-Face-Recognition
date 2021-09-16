@@ -1,4 +1,4 @@
-package com.shaon2016.facerecongnition
+package com.shaon2016.facerecongnition.camera
 
 import android.annotation.SuppressLint
 import android.content.Context

@@ -5,9 +5,9 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
-import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.shaon2016.facerecongnition.camera.CameraXManager
 import com.shaon2016.facerecongnition.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -15,7 +15,7 @@ class MainActivity : AppCompatActivity() {
 
     // Camera
     private val cm by lazy {
-        CameraXManager(this, binding.viewFinder)
+        CameraXManager(this, binding.viewFinder, this, binding.graphicOverlay)
     }
 
     // Permission
@@ -66,18 +66,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        cm.onResume()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        cm.onStopped()
-
     }
 
 }
