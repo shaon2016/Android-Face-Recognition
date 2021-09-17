@@ -18,7 +18,7 @@ class FaceContourGraphic(
     private val boxPaint: Paint
     private val titlePaint: Paint
 
-    var recognizedTitle = ""
+    var maskOrNotMaskLabel = ""
 
     init {
         val selectedColor = Color.WHITE
@@ -47,7 +47,7 @@ class FaceContourGraphic(
         )
         canvas?.drawRect(rect, boxPaint)
 
-        canvas?.drawText(recognizedTitle, rect.left, rect.top, titlePaint)
+        canvas?.drawText(maskOrNotMaskLabel, rect.left, rect.top, titlePaint)
     }
 
     companion object {

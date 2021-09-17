@@ -3,8 +3,6 @@ package com.shaon2016.facerecongnition.face_mask_detection
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.util.Log
-import android.util.Pair
 import com.google.mlkit.vision.face.Face
 import com.shaon2016.facerecongnition.camera.GraphicOverlay
 import com.shaon2016.facerecongnition.ml.MaskDetector
@@ -12,12 +10,13 @@ import org.tensorflow.lite.DataType
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import kotlin.math.sqrt
 
-class FaceRecognitionProcessor(
+class FaceMaskDetectorProcessor(
     private val context: Context,
     private val overlay: GraphicOverlay
 ) {
+
+    private val NUM_DETECTIONS = 10
 
     private val INPUT_SIZE = 224
 
@@ -60,9 +59,38 @@ class FaceRecognitionProcessor(
             val outputs = maskDetector.process(inputFeature)
             val outputFeature = outputs.outputFeature0AsTensorBuffer
 
+            val finalOutput = outputFeature.floatArray
 
+            val mask = finalOutput[0]
+            val noMask = finalOutput[1]
 
+            val confidence: Float
+            val id: String
+            val label: String
 
+            if (mask > noMask) {
+                label = "mask"
+                confidence = mask
+                id = "0"
+            } else {
+                label = "no mask"
+                confidence = noMask
+                id = "1"
+            }
+
+            val det = Detection(id, label, confidence)
+
+            if (confidence >= 0.6f) {
+                if (det.id == "0") {
+                    det.color = Color.GREEN
+                } else {
+                    det.color = Color.RED
+                }
+            }
+
+            det.location = rect
+
+            faceGraphic.maskOrNotMaskLabel = det.label
         }
 
     }

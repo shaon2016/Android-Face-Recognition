@@ -3,6 +3,7 @@ package com.shaon2016.facerecongnition.camera
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Rect
+import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import com.google.android.gms.tasks.Task
@@ -34,6 +35,7 @@ abstract class BaseImageAnalyzer<T> : ImageAnalysis.Analyzer {
                             bitmap
                         )
                     }
+
                 }
                 .addOnFailureListener {
                     graphicOverlay.clear()

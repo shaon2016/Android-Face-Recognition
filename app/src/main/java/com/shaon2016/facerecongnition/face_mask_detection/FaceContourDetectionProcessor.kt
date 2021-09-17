@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.util.Log
-import android.view.View
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
@@ -20,11 +19,11 @@ class FaceContourDetectionProcessor(
 ) :
     BaseImageAnalyzer<List<Face>>() {
 
-    private val faceRecognitionProcessor by lazy { FaceRecognitionProcessor(context, overlay) }
+    private val faceRecognitionProcessor by lazy { FaceMaskDetectorProcessor(context, overlay) }
 
     private val realTimeOpts = FaceDetectorOptions.Builder()
         .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
-        .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
+        .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
         .build()
 
     private val detector = FaceDetection.getClient(realTimeOpts)
@@ -58,6 +57,7 @@ class FaceContourDetectionProcessor(
         }
         graphicOverlay.postInvalidate()
 
+        Log.d("DATATAG", "Detected Faces: ${results.size}")
     }
 
     override fun onFailure(e: Exception) {
