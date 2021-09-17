@@ -19,7 +19,7 @@ class FaceRecognitionProcessor(
     private val overlay: GraphicOverlay
 ) {
 
-    private val TF_FR_API_INPUT_SIZE = 224
+    private val INPUT_SIZE = 224
 
     private val IMAGE_MEAN = 128f
     private val IMAGE_STD = 128f
@@ -28,7 +28,7 @@ class FaceRecognitionProcessor(
     private val maskDetector = MaskDetector.newInstance(context)
     private val inputFeature =
         TensorBuffer.createFixedSize(
-            intArrayOf(1, TF_FR_API_INPUT_SIZE, TF_FR_API_INPUT_SIZE, 3),
+            intArrayOf(1, INPUT_SIZE, INPUT_SIZE, 3),
             DataType.FLOAT32
         )
 
@@ -49,12 +49,12 @@ class FaceRecognitionProcessor(
 
             val resizedBmp = Bitmap.createScaledBitmap(
                 croppedBitmap,
-                TF_FR_API_INPUT_SIZE,
-                TF_FR_API_INPUT_SIZE,
+                INPUT_SIZE,
+                INPUT_SIZE,
                 false
             )
 
-            val buffer = convertBitmapToByteBuffer(resizedBmp, TF_FR_API_INPUT_SIZE)
+            val buffer = convertBitmapToByteBuffer(resizedBmp)
             inputFeature.loadBuffer(buffer)
 
             val outputs = maskDetector.process(inputFeature)
@@ -67,7 +67,7 @@ class FaceRecognitionProcessor(
 
     }
 
-    private fun convertBitmapToByteBuffer(bitmap: Bitmap, INPUT_SIZE: Int): ByteBuffer {
+    private fun convertBitmapToByteBuffer(bitmap: Bitmap): ByteBuffer {
         val byteBuffer = ByteBuffer.allocateDirect(4 * INPUT_SIZE * INPUT_SIZE * 3)
 
         byteBuffer.order(ByteOrder.nativeOrder())
