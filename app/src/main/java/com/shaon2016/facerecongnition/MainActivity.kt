@@ -15,7 +15,7 @@ class MainActivity : AppCompatActivity() {
 
     // Camera
     private val cm by lazy {
-        CameraXManager(this, binding.viewFinder, this, binding.graphicOverlay, binding.fabAdd)
+        CameraXManager(this, binding.viewFinder, this, binding.graphicOverlay)
     }
 
     // Permission

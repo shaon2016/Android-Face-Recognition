@@ -9,7 +9,7 @@ import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.shaon2016.facerecongnition.face_detection.FaceContourDetectionProcessor
+import com.shaon2016.facerecongnition.face_mask_detection.FaceContourDetectionProcessor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -18,9 +18,7 @@ class CameraXManager(
     private val context: Context,
     private val viewFinder: PreviewView,
     private val lifecycleOwner: LifecycleOwner,
-    private val graphicOverlay: GraphicOverlay,
-    private val   fabAdd: FloatingActionButton,
-
+    private val graphicOverlay: GraphicOverlay
     ) {
 
     private val TAG = "CameraXManager"
@@ -77,7 +75,7 @@ class CameraXManager(
     private fun configureImageAnalyzer(): ImageAnalysis {
         return ImageAnalysis.Builder()
             .setTargetRotation(viewFinder.display.rotation)
-            .setTargetResolution(Size(viewFinder.width, viewFinder.height))
+            .setTargetResolution(Size(800, 600))
             .build()
             .also {
                 it.setAnalyzer(cameraExecutor, selectAnalyzer())
@@ -85,11 +83,11 @@ class CameraXManager(
     }
 
     private fun selectAnalyzer(): ImageAnalysis.Analyzer {
-        return FaceContourDetectionProcessor(graphicOverlay, fabAdd, context)
+        return FaceContourDetectionProcessor(graphicOverlay, context)
     }
 
     private fun configurePreviewUseCase() = Preview.Builder()
-        .setTargetResolution(Size(viewFinder.width, viewFinder.height))
+        .setTargetResolution(Size(800, 600))
         .build()
         .also {
             it.setSurfaceProvider(viewFinder.surfaceProvider)
@@ -98,78 +96,6 @@ class CameraXManager(
     /** Returns true if the device has an available front camera. False otherwise */
     private fun hasFrontCamera() = cameraProvider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)
     private fun hasBackCamera() = cameraProvider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)
-
-
-    fun onStopped() {
-        cameraExecutor.shutdown()
-        imageAnalyzer?.clearAnalyzer()
-    }
-
-  /*  inner class ImageAnalyzer(
-        private val ctx: Context
-    ) :
-        ImageAnalysis.Analyzer {
-
-        // MLKit face detection
-        private val highAccuracyOpts = FaceDetectorOptions.Builder()
-            .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
-            .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
-            .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
-            .build()
-
-        private val detector = FaceDetection.getClient(highAccuracyOpts)
-
-        // Face recognition Tflite model
-        val mobileFaceNet = MobileFaceNet.newInstance(context)
-        val inputFeature =
-            TensorBuffer.createFixedSize(intArrayOf(1, 112, 112, 3), DataType.FLOAT32)
-
-        @SuppressLint("UnsafeExperimentalUsageError", "UnsafeOptInUsageError")
-        override fun analyze(imageProxy: ImageProxy) {
-            val toBitmap = imageProxy.toBitmap(ctx)
-
-            val mediaImage = imageProxy.image
-            if (mediaImage != null) {
-                val image =
-                    InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
-
-                detector.process(image).addOnSuccessListener { faces ->
-                    faces.forEach {
-                        val rect = it.boundingBox
-
-                        if (rect.width() <= toBitmap!!.width && rect.height() <= toBitmap.height) {
-                            val croppedBitmap = Bitmap.createBitmap(
-                                toBitmap,
-                                rect.left,
-                                rect.top,
-                                rect.width(),
-                                rect.height()
-                            )
-
-                            val resizedBitmap =
-                                Bitmap.createScaledBitmap(croppedBitmap, 112, 112, false)
-
-                            val buffer = Helper.convertBitmapToByteBuffer(resizedBitmap, 112)
-                            inputFeature.loadBuffer(buffer)
-
-                            val outputs = mobileFaceNet.process(inputFeature)
-                            val outputFeature = outputs.outputFeature0AsTensorBuffer
-
-                            if (outputFeature.floatArray.isNotEmpty()) {
-                                Log.d("DATATAG", "TFLite model data: ")
-                            }
-
-                        }
-                    }
-                }.addOnFailureListener {
-
-
-                }.addOnCompleteListener {
-                    imageProxy.close()
-                }
-            }
-        }
-    }*/
 
 }
 
