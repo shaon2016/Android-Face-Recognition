@@ -11,11 +11,11 @@ import com.shaon2016.facerecongnition.camera.CameraXManager
 import com.shaon2016.facerecongnition.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var binding : ActivityMainBinding
+    private lateinit var binding: ActivityMainBinding
 
     // Camera
     private val cm by lazy {
-        CameraXManager(this, binding.viewFinder, this, binding.graphicOverlay)
+        CameraXManager(this, binding.viewFinder, this, binding.graphicOverlay, binding.fabAdd)
     }
 
     // Permission
@@ -37,6 +37,8 @@ class MainActivity : AppCompatActivity() {
                 this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
             )
         }
+
+
     }
 
     /**

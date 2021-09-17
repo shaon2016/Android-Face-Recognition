@@ -5,11 +5,12 @@ import android.graphics.RectF
 
 data class Recognition(
     val id: String,
-    val title: String,
-    val distance: Float = -1f,
-    val extra: Any
+    var title: String,
+    var distance: Float = -1f
 ) {
     var location: RectF = RectF()
     var color: Int = 0
     var crop: Bitmap? = null
+    var extra: Any? = null
+
 }

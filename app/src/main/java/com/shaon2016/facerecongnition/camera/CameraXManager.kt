@@ -8,6 +8,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.shaon2016.facerecongnition.face_detection.FaceContourDetectionProcessor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -18,13 +19,14 @@ class CameraXManager(
     private val viewFinder: PreviewView,
     private val lifecycleOwner: LifecycleOwner,
     private val graphicOverlay: GraphicOverlay,
+    private val   fabAdd: FloatingActionButton,
 
     ) {
 
     private val TAG = "CameraXManager"
 
     // CameraX
-    private var lensFacing: Int = CameraSelector.LENS_FACING_FRONT
+    private var lensFacing: Int = CameraSelector.LENS_FACING_BACK
     private var cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()
     private lateinit var cameraProvider: ProcessCameraProvider
     private var imageAnalyzer: ImageAnalysis? = null
@@ -39,8 +41,8 @@ class CameraXManager(
 
             // Select lensFacing depending on the available cameras
             lensFacing = when {
-                hasFrontCamera() -> CameraSelector.LENS_FACING_FRONT
                 hasBackCamera() -> CameraSelector.LENS_FACING_BACK
+                hasFrontCamera() -> CameraSelector.LENS_FACING_FRONT
                 else -> throw IllegalStateException("front camera are unavailable")
             }
 
@@ -83,7 +85,7 @@ class CameraXManager(
     }
 
     private fun selectAnalyzer(): ImageAnalysis.Analyzer {
-        return FaceContourDetectionProcessor(graphicOverlay, context)
+        return FaceContourDetectionProcessor(graphicOverlay, fabAdd, context)
     }
 
     private fun configurePreviewUseCase() = Preview.Builder()

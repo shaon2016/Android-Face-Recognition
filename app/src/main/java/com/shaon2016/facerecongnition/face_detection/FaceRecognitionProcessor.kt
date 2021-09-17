@@ -1,19 +1,33 @@
 package com.shaon2016.facerecongnition.face_detection
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.graphics.RectF
+import android.util.Log
 import android.util.Pair
+import android.view.View
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.TextView
 import com.google.mlkit.vision.face.Face
+import com.shaon2016.facerecongnition.R
 import com.shaon2016.facerecongnition.ml.MobileFaceNet
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.ArrayList
 
-class FaceRecognitionProcessor(private val context: Context) {
+class FaceRecognitionProcessor(private val context: Context, private val fabAdd: View) {
+    var addAFacePendingToRecognize = false
+
+    init {
+        fabAdd.setOnClickListener {
+            addAFacePendingToRecognize = true
+        }
+    }
+
     private val TF_FR_API_INPUT_SIZE = 112
 
     private val IMAGE_MEAN = 128f
@@ -30,7 +44,9 @@ class FaceRecognitionProcessor(private val context: Context) {
     fun recognize(face: Face, bitmap: Bitmap) {
         val rect = face.boundingBox
 
-        if (rect.width() <= bitmap.width && rect.height() <= bitmap.height) {
+        Log.d("DATATAG", "RECT: ${rect}")
+
+        if (rect.left > 0 && rect.right > 0 && rect.top > 0 && rect.bottom > 0 && rect.width() + rect.left <= bitmap.width && rect.height() + rect.top <= bitmap.height) {
             val croppedBitmap = Bitmap.createBitmap(
                 bitmap,
                 rect.left,
@@ -54,40 +70,82 @@ class FaceRecognitionProcessor(private val context: Context) {
 
             val embeddings = outputFeature.floatArray
 
-            doRecognition(embeddings)
+
+            val resultRecognition = Recognition("0", "?", Float.MAX_VALUE)
+            resultRecognition.extra = embeddings
+            resultRecognition.crop = croppedBitmap
+
+            if (addAFacePendingToRecognize) {
+                addAFacePendingToRecognize = false
+
+                showAddFaceDialog(resultRecognition)
+            }
+
+            doRecognition(resultRecognition)
         }
 
     }
 
     private val registered = HashMap<String, Recognition>()
 
-    fun register(name: String, rec: Recognition) {
+    private fun register(name: String, rec: Recognition) {
         registered[name] = rec
     }
 
-    private fun doRecognition(embeddings: FloatArray) {
-        var distance = Float.MAX_VALUE
-        var id = "0"
-        var title = "?"
+    private fun doRecognition(resultRecognition: Recognition) {
 
         if (registered.size > 0) {
-            val nearest: Pair<String, Float>? = findNearest(embeddings)
+            val nearest: Pair<String, Float>? = findNearest(resultRecognition.extra as FloatArray)
             if (nearest != null) {
                 val name = nearest.first
-                title = name
-                distance = nearest.second
+                resultRecognition.title = name
+                resultRecognition.distance = nearest.second
 
+                Log.d(
+                    "DATATAG",
+                    "Nearest: Title: ${resultRecognition.title} and Distance: ${resultRecognition.title}"
+                )
             }
         }
 
-        val resultRecognition = Recognition(id, title, distance, embeddings)
 
         val conf = resultRecognition.distance
 
-        if (conf < 1.0f) {
-            // Recognized
+        Log.d("DATATAG", "Confidence: $conf")
 
+        if (conf < 1.0f) {
+            if (resultRecognition.id == "0") {
+                resultRecognition.color = Color.GREEN
+            } else {
+                resultRecognition.color = Color.RED
+            }
         }
+
+
+    }
+
+    private fun showAddFaceDialog(rec: Recognition) {
+        val builder = AlertDialog.Builder(context)
+        val dialogLayout = View.inflate(context, R.layout.image_edit_dialog, null)
+
+        val ivFace = dialogLayout.findViewById<ImageView>(R.id.dlg_image)
+        val tvTitle = dialogLayout.findViewById<TextView>(R.id.dlg_title)
+        val etName = dialogLayout.findViewById<EditText>(R.id.dlg_input)
+
+        tvTitle.text = "Add Face"
+        ivFace.setImageBitmap(rec.crop)
+        etName.hint = "Input name"
+        builder.setPositiveButton("OK", DialogInterface.OnClickListener { dlg, i ->
+            val name = etName.text.toString()
+            if (name.isEmpty()) {
+                return@OnClickListener
+            }
+            register(name, rec)
+
+            dlg.dismiss()
+        })
+        builder.setView(dialogLayout)
+        builder.show()
     }
 
     // looks for the nearest embedding in the dataset (using L2 norm)
@@ -95,7 +153,7 @@ class FaceRecognitionProcessor(private val context: Context) {
     private fun findNearest(emb: FloatArray): Pair<String, Float>? {
         var ret: Pair<String, Float>? = null
         for ((name, value) in registered) {
-            val knownEmb = (value.extra as Array<FloatArray>)[0]
+            val knownEmb = (value.extra as FloatArray)
             var distance = 0f
             for (i in emb.indices) {
                 val diff = emb[i] - knownEmb[i]

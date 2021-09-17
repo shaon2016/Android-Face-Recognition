@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.util.Log
+import android.view.View
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
@@ -13,10 +14,14 @@ import com.shaon2016.facerecongnition.camera.BaseImageAnalyzer
 import com.shaon2016.facerecongnition.camera.GraphicOverlay
 import java.io.IOException
 
-class FaceContourDetectionProcessor(private val view: GraphicOverlay, private val context: Context) :
+class FaceContourDetectionProcessor(
+    private val view: GraphicOverlay,
+    private val fabAdd: View,
+    private val context: Context
+) :
     BaseImageAnalyzer<List<Face>>() {
 
-    private val faceRecognitionProcessor by lazy { FaceRecognitionProcessor(context) }
+    private val faceRecognitionProcessor by lazy { FaceRecognitionProcessor(context, fabAdd) }
 
     private val realTimeOpts = FaceDetectorOptions.Builder()
         .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
