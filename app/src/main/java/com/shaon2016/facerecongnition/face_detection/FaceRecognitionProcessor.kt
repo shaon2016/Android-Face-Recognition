@@ -13,13 +13,19 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.google.mlkit.vision.face.Face
 import com.shaon2016.facerecongnition.R
+import com.shaon2016.facerecongnition.camera.GraphicOverlay
 import com.shaon2016.facerecongnition.ml.MobileFaceNet
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import kotlin.math.sqrt
 
-class FaceRecognitionProcessor(private val context: Context, private val fabAdd: View) {
+class FaceRecognitionProcessor(
+    private val context: Context,
+    private val overlay: GraphicOverlay,
+    private val fabAdd: View
+) {
     var addAFacePendingToRecognize = false
 
     init {
@@ -41,7 +47,13 @@ class FaceRecognitionProcessor(private val context: Context, private val fabAdd:
             DataType.FLOAT32
         )
 
-    fun recognize(face: Face, bitmap: Bitmap) {
+    private val registered = HashMap<String, Recognition>()
+
+    private fun register(name: String, rec: Recognition) {
+        registered[name] = rec
+    }
+
+    fun recognize(face: Face, bitmap: Bitmap, faceGraphic: FaceContourGraphic) {
         val rect = face.boundingBox
 
         Log.d("DATATAG", "RECT: ${rect}")
@@ -81,18 +93,12 @@ class FaceRecognitionProcessor(private val context: Context, private val fabAdd:
                 showAddFaceDialog(resultRecognition)
             }
 
-            doRecognition(resultRecognition)
+            doRecognition(resultRecognition, faceGraphic)
         }
 
     }
 
-    private val registered = HashMap<String, Recognition>()
-
-    private fun register(name: String, rec: Recognition) {
-        registered[name] = rec
-    }
-
-    private fun doRecognition(resultRecognition: Recognition) {
+    private fun doRecognition(resultRecognition: Recognition, faceGraphic: FaceContourGraphic) {
 
         if (registered.size > 0) {
             val nearest: Pair<String, Float>? = findNearest(resultRecognition.extra as FloatArray)
@@ -103,11 +109,10 @@ class FaceRecognitionProcessor(private val context: Context, private val fabAdd:
 
                 Log.d(
                     "DATATAG",
-                    "Nearest: Title: ${resultRecognition.title} and Distance: ${resultRecognition.title}"
+                    "Nearest: Title: ${resultRecognition.title} and Distance: ${resultRecognition.distance}"
                 )
             }
         }
-
 
         val conf = resultRecognition.distance
 
@@ -116,6 +121,8 @@ class FaceRecognitionProcessor(private val context: Context, private val fabAdd:
         if (conf < 1.0f) {
             if (resultRecognition.id == "0") {
                 resultRecognition.color = Color.GREEN
+
+                faceGraphic.recognizedTitle = resultRecognition.title
             } else {
                 resultRecognition.color = Color.RED
             }
@@ -159,7 +166,7 @@ class FaceRecognitionProcessor(private val context: Context, private val fabAdd:
                 val diff = emb[i] - knownEmb[i]
                 distance += diff * diff
             }
-            distance = Math.sqrt(distance.toDouble()).toFloat()
+            distance = sqrt(distance.toDouble()).toFloat()
             if (ret == null || distance < ret.second) {
                 ret = Pair(name, distance)
             }

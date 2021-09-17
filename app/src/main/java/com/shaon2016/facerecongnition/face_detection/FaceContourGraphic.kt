@@ -8,7 +8,7 @@ import com.google.mlkit.vision.face.Face
 import com.shaon2016.facerecongnition.camera.GraphicOverlay
 
 class FaceContourGraphic(
-    overlay: GraphicOverlay,
+    private val overlay: GraphicOverlay,
     private val face: Face,
     private val imageRect: Rect
 ) : GraphicOverlay.Graphic(overlay) {
@@ -16,6 +16,9 @@ class FaceContourGraphic(
     private val facePositionPaint: Paint
     private val idPaint: Paint
     private val boxPaint: Paint
+    private val titlePaint: Paint
+
+    var recognizedTitle = ""
 
     init {
         val selectedColor = Color.WHITE
@@ -30,6 +33,10 @@ class FaceContourGraphic(
         boxPaint.color = selectedColor
         boxPaint.style = Paint.Style.STROKE
         boxPaint.strokeWidth = BOX_STROKE_WIDTH
+
+        titlePaint = Paint()
+        titlePaint.color = Color.YELLOW
+        titlePaint.textSize = 60f
     }
 
     override fun draw(canvas: Canvas?) {
@@ -39,6 +46,8 @@ class FaceContourGraphic(
             face.boundingBox
         )
         canvas?.drawRect(rect, boxPaint)
+
+        canvas?.drawText(recognizedTitle, rect.left, rect.top, titlePaint)
     }
 
     companion object {

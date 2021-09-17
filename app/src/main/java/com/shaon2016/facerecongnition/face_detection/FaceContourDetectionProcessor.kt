@@ -15,13 +15,13 @@ import com.shaon2016.facerecongnition.camera.GraphicOverlay
 import java.io.IOException
 
 class FaceContourDetectionProcessor(
-    private val view: GraphicOverlay,
+    private val overlay: GraphicOverlay,
     private val fabAdd: View,
     private val context: Context
 ) :
     BaseImageAnalyzer<List<Face>>() {
 
-    private val faceRecognitionProcessor by lazy { FaceRecognitionProcessor(context, fabAdd) }
+    private val faceRecognitionProcessor by lazy { FaceRecognitionProcessor(context,overlay, fabAdd) }
 
     private val realTimeOpts = FaceDetectorOptions.Builder()
         .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
@@ -30,7 +30,7 @@ class FaceContourDetectionProcessor(
 
     private val detector = FaceDetection.getClient(realTimeOpts)
 
-    override val graphicOverlay: GraphicOverlay get() = view
+    override val graphicOverlay: GraphicOverlay get() = overlay
 
     override fun faceDetectInImage(image: InputImage): Task<List<Face>> {
         return detector.process(image)
@@ -55,7 +55,7 @@ class FaceContourDetectionProcessor(
             graphicOverlay.add(faceGraphic)
 
             // Recognize
-            faceRecognitionProcessor.recognize(it, bitmap)
+            faceRecognitionProcessor.recognize(it, bitmap, faceGraphic)
         }
         graphicOverlay.postInvalidate()
 
