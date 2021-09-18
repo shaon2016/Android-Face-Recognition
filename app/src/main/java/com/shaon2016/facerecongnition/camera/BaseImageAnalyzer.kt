@@ -17,7 +17,7 @@ abstract class BaseImageAnalyzer<T> : ImageAnalysis.Analyzer {
     @SuppressLint("UnsafeExperimentalUsageError", "UnsafeOptInUsageError")
     override fun analyze(imageProxy: ImageProxy) {
         val mediaImage = imageProxy.image
-        val bitmap = BitmapUtils.getBitmap(imageProxy)
+//        val bitmap = BitmapUtils.getBitmap(imageProxy)
 
         mediaImage?.let { image ->
             faceDetectInImage(
@@ -27,15 +27,11 @@ abstract class BaseImageAnalyzer<T> : ImageAnalysis.Analyzer {
                 )
             )
                 .addOnSuccessListener { faces ->
-                    bitmap?.let {
-                        onSuccess(
-                            faces,
-                            graphicOverlay,
-                            image.cropRect,
-                            bitmap
-                        )
-                    }
-
+                    onSuccess(
+                        faces,
+                        graphicOverlay,
+                        image.cropRect
+                    )
                 }
                 .addOnFailureListener {
                     graphicOverlay.clear()
@@ -54,8 +50,7 @@ abstract class BaseImageAnalyzer<T> : ImageAnalysis.Analyzer {
     protected abstract fun onSuccess(
         results: T,
         graphicOverlay: GraphicOverlay,
-        rect: Rect,
-        bitmap: Bitmap
+        rect: Rect
     )
 
     protected abstract fun onFailure(e: Exception)

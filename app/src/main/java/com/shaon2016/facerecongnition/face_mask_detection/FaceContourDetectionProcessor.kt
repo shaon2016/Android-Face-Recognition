@@ -45,7 +45,7 @@ class FaceContourDetectionProcessor(
     override fun onSuccess(
         results: List<Face>,
         graphicOverlay: GraphicOverlay,
-        rect: Rect, bitmap: Bitmap
+        rect: Rect
     ) {
         graphicOverlay.clear()
         results.forEach {

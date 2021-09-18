@@ -75,7 +75,7 @@ class CameraXManager(
     private fun configureImageAnalyzer(): ImageAnalysis {
         return ImageAnalysis.Builder()
             .setTargetRotation(viewFinder.display.rotation)
-            .setTargetResolution(Size(800, 600))
+//            .setTargetResolution(Size(800, 600))
             .build()
             .also {
                 it.setAnalyzer(cameraExecutor, selectAnalyzer())
@@ -87,7 +87,7 @@ class CameraXManager(
     }
 
     private fun configurePreviewUseCase() = Preview.Builder()
-        .setTargetResolution(Size(800, 600))
+//        .setTargetResolution(Size(800, 600))
         .build()
         .also {
             it.setSurfaceProvider(viewFinder.surfaceProvider)
