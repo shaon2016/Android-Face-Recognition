@@ -15,6 +15,9 @@ import com.google.mlkit.vision.face.Face
 import com.shaon2016.facerecongnition.R
 import com.shaon2016.facerecongnition.camera.GraphicOverlay
 import com.shaon2016.facerecongnition.ml.MobileFaceNet
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.nio.ByteBuffer
@@ -87,10 +90,12 @@ class FaceRecognitionProcessor(
             resultRecognition.extra = embeddings
             resultRecognition.crop = croppedBitmap
 
-            if (addAFacePendingToRecognize) {
-                addAFacePendingToRecognize = false
+            CoroutineScope(Dispatchers.Main).launch {
+                if (addAFacePendingToRecognize) {
+                    addAFacePendingToRecognize = false
 
-                showAddFaceDialog(resultRecognition)
+                    showAddFaceDialog(resultRecognition)
+                }
             }
 
             doRecognition(resultRecognition, faceGraphic)

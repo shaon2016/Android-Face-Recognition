@@ -55,23 +55,25 @@ class FaceContourDetectionProcessor(
         }
     }
 
-    override  fun onSuccess(
+    override  suspend fun onSuccess(
         results: List<Face>,
         graphicOverlay: GraphicOverlay,
         bitmap: Bitmap
     ) {
         graphicOverlay.clear()
 
-        results.forEach {
-            val faceGraphic = FaceContourGraphic(graphicOverlay, it)
-            if (!overlay.areDimsInit) {
-                faceGraphic.frameHeight = bitmap.height
-                faceGraphic.frameWidth = bitmap.width
-            }
-            graphicOverlay.add(faceGraphic)
+        withContext(Dispatchers.Default) {
+            results.forEach {
+                val faceGraphic = FaceContourGraphic(graphicOverlay, it)
+                if (!overlay.areDimsInit) {
+                    faceGraphic.frameHeight = bitmap.height
+                    faceGraphic.frameWidth = bitmap.width
+                }
+                graphicOverlay.add(faceGraphic)
 
-            // Recognize
-            faceRecognitionProcessor.recognize(it, bitmap, faceGraphic)
+                // Recognize
+                faceRecognitionProcessor.recognize(it, bitmap, faceGraphic)
+            }
         }
 
         graphicOverlay.postInvalidate()

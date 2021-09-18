@@ -25,11 +25,11 @@ abstract class BaseImageAnalyzer<T> : ImageAnalysis.Analyzer {
         val mediaImage = imageProxy.image
         val bitmap = BitmapUtils.getBitmap(imageProxy)
 
-//        if (isProcessing || faces?.size == 0) {
-//            Log.d("Processing", "Still Processing")
-//            imageProxy.close()
-//            return
-//        }
+        if (isProcessing || faces?.size == 0) {
+            Log.d("Processing", "Still Processing")
+            imageProxy.close()
+            return
+        }
         isProcessing = true
         mediaImage?.let { image ->
             faceDetectInImage(
@@ -40,11 +40,13 @@ abstract class BaseImageAnalyzer<T> : ImageAnalysis.Analyzer {
             )
                 .addOnSuccessListener { faces ->
                     bitmap?.let {
-                        onSuccess(
-                            faces,
-                            graphicOverlay,
-                            bitmap
-                        )
+                        CoroutineScope(Dispatchers.Main).launch {
+                            onSuccess(
+                                faces,
+                                graphicOverlay,
+                                bitmap
+                            )
+                        }
                     }
                 }
                 .addOnFailureListener {
@@ -61,7 +63,8 @@ abstract class BaseImageAnalyzer<T> : ImageAnalysis.Analyzer {
 
     abstract fun stop()
 
-    protected abstract  fun onSuccess(
+    protected abstract suspend
+    fun onSuccess(
         results: T,
         graphicOverlay: GraphicOverlay,
         bitmap: Bitmap
