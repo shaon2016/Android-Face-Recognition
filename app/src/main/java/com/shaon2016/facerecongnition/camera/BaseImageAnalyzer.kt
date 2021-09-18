@@ -12,12 +12,23 @@ import com.shaon2016.facerecongnition.util.BitmapUtils
 
 abstract class BaseImageAnalyzer<T> : ImageAnalysis.Analyzer {
 
+    private var isProcessing = false
+
     abstract val graphicOverlay: GraphicOverlay
 
     @SuppressLint("UnsafeExperimentalUsageError", "UnsafeOptInUsageError")
     override fun analyze(imageProxy: ImageProxy) {
         val mediaImage = imageProxy.image
 //        val bitmap = BitmapUtils.getBitmap(imageProxy)
+
+
+        // If the previous frame is still being processed, then skip this frame
+        if (isProcessing) {
+            Log.d("Processing", "Still Processing")
+            imageProxy.close()
+            return
+        }
+        isProcessing = true
 
         mediaImage?.let { image ->
             faceDetectInImage(
@@ -38,6 +49,8 @@ abstract class BaseImageAnalyzer<T> : ImageAnalysis.Analyzer {
                     graphicOverlay.postInvalidate()
                     onFailure(it)
                 }.addOnCompleteListener {
+                    Log.d("Processing", " Processing Completed")
+                    isProcessing = false
                     imageProxy.close()
                 }
         }

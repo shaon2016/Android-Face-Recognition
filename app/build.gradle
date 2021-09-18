@@ -53,7 +53,7 @@ dependencies {
 
     implementation 'org.tensorflow:tensorflow-lite-support:0.1.0'
     implementation 'org.tensorflow:tensorflow-lite-metadata:0.1.0'
-    implementation 'org.tensorflow:tensorflow-lite-gpu:2.3.0'
+    implementation 'org.tensorflow:tensorflow-lite-gpu:2.4.0'
 
     // CameraX Library
     def camerax_version = "1.1.0-alpha08"
@@ -65,4 +65,7 @@ dependencies {
     implementation "androidx.camera:camera-view:1.0.0-alpha28"
     // If you want to additionally use the CameraX Extensions library
     implementation "androidx.camera:camera-extensions:1.0.0-alpha28"
+
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0'
 }
