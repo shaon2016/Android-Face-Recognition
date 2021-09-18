@@ -19,10 +19,11 @@ class FaceContourDetectionProcessor(
 ) :
     BaseImageAnalyzer<List<Face>>() {
 
-    private val faceRecognitionProcessor by lazy { FaceMaskDetectorProcessor(context, overlay) }
+    private var blinkCount = 0
 
     private val realTimeOpts = FaceDetectorOptions.Builder()
         .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
+        .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
         .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
         .build()
 
@@ -52,12 +53,29 @@ class FaceContourDetectionProcessor(
             val faceGraphic = FaceContourGraphic(graphicOverlay, it, rect)
             graphicOverlay.add(faceGraphic)
 
-            // Recognize
-            faceRecognitionProcessor.detectMask(it, bitmap, faceGraphic)
+            detectBlink(it, faceGraphic)
         }
         graphicOverlay.postInvalidate()
 
         Log.d("DATATAG", "Detected Faces: ${results.size}")
+    }
+
+    private fun detectBlink(face: Face, faceGraphic: FaceContourGraphic) {
+        val leftEyeOpenProbability = face.leftEyeOpenProbability
+        val rightEyeOpenProbability = face.rightEyeOpenProbability
+
+        if (rightEyeOpenProbability != null && leftEyeOpenProbability != null) {
+            Log.d(
+                "DATATAG",
+                "Left Eye Probability: $leftEyeOpenProbability and Right Eye Probability: $rightEyeOpenProbability"
+            )
+
+            if (leftEyeOpenProbability < 0.4 && rightEyeOpenProbability < 0.4) {
+                blinkCount++
+            }
+
+            faceGraphic.blinkCount = "Blink: ${blinkCount}"
+        }
     }
 
     override fun onFailure(e: Exception) {

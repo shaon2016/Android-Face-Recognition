@@ -24,7 +24,7 @@ class CameraXManager(
     private val TAG = "CameraXManager"
 
     // CameraX
-    private var lensFacing: Int = CameraSelector.LENS_FACING_BACK
+    private var lensFacing: Int = CameraSelector.LENS_FACING_FRONT
     private var cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()
     private lateinit var cameraProvider: ProcessCameraProvider
     private var imageAnalyzer: ImageAnalysis? = null
@@ -39,8 +39,8 @@ class CameraXManager(
 
             // Select lensFacing depending on the available cameras
             lensFacing = when {
-                hasBackCamera() -> CameraSelector.LENS_FACING_BACK
                 hasFrontCamera() -> CameraSelector.LENS_FACING_FRONT
+                hasBackCamera() -> CameraSelector.LENS_FACING_BACK
                 else -> throw IllegalStateException("front camera are unavailable")
             }
 

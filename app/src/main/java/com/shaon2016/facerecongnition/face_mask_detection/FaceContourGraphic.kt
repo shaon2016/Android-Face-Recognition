@@ -18,7 +18,7 @@ class FaceContourGraphic(
     private val boxPaint: Paint
     private val titlePaint: Paint
 
-    var maskOrNotMaskLabel = ""
+    var blinkCount = ""
 
     init {
         val selectedColor = Color.WHITE
@@ -35,7 +35,7 @@ class FaceContourGraphic(
         boxPaint.strokeWidth = BOX_STROKE_WIDTH
 
         titlePaint = Paint()
-        titlePaint.color = Color.YELLOW
+        titlePaint.color = Color.WHITE
         titlePaint.textSize = 60f
     }
 
@@ -47,7 +47,7 @@ class FaceContourGraphic(
         )
         canvas?.drawRect(rect, boxPaint)
 
-        canvas?.drawText(maskOrNotMaskLabel, rect.left, rect.top, titlePaint)
+        canvas?.drawText(blinkCount, rect.left, rect.top, titlePaint)
     }
 
     companion object {
