@@ -12,6 +12,7 @@ import kotlin.math.ceil
 
 open class GraphicOverlay(context: Context?, attrs: AttributeSet?) :
     View(context, attrs) {
+    var areDimsInit = false
 
     private val lock = Any()
     private val graphics: MutableList<Graphic> = ArrayList()

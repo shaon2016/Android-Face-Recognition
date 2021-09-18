@@ -3,13 +3,20 @@ package com.shaon2016.facerecongnition.camera
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Rect
+import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.face.Face
 import com.shaon2016.facerecongnition.util.BitmapUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 abstract class BaseImageAnalyzer<T> : ImageAnalysis.Analyzer {
+    var isProcessing = false
+    private var faces: ArrayList<Face>? = null
 
     abstract val graphicOverlay: GraphicOverlay
 
@@ -18,6 +25,12 @@ abstract class BaseImageAnalyzer<T> : ImageAnalysis.Analyzer {
         val mediaImage = imageProxy.image
         val bitmap = BitmapUtils.getBitmap(imageProxy)
 
+//        if (isProcessing || faces?.size == 0) {
+//            Log.d("Processing", "Still Processing")
+//            imageProxy.close()
+//            return
+//        }
+        isProcessing = true
         mediaImage?.let { image ->
             faceDetectInImage(
                 InputImage.fromMediaImage(
@@ -30,7 +43,6 @@ abstract class BaseImageAnalyzer<T> : ImageAnalysis.Analyzer {
                         onSuccess(
                             faces,
                             graphicOverlay,
-                            image.cropRect,
                             bitmap
                         )
                     }
@@ -49,10 +61,9 @@ abstract class BaseImageAnalyzer<T> : ImageAnalysis.Analyzer {
 
     abstract fun stop()
 
-    protected abstract fun onSuccess(
+    protected abstract  fun onSuccess(
         results: T,
         graphicOverlay: GraphicOverlay,
-        rect: Rect,
         bitmap: Bitmap
     )
 

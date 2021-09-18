@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.Rect
 import android.util.Log
 import android.view.View
+import androidx.core.graphics.toRectF
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
@@ -12,6 +13,10 @@ import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetectorOptions
 import com.shaon2016.facerecongnition.camera.BaseImageAnalyzer
 import com.shaon2016.facerecongnition.camera.GraphicOverlay
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.IOException
 
 class FaceContourDetectionProcessor(
@@ -21,7 +26,13 @@ class FaceContourDetectionProcessor(
 ) :
     BaseImageAnalyzer<List<Face>>() {
 
-    private val faceRecognitionProcessor by lazy { FaceRecognitionProcessor(context,overlay, fabAdd) }
+    private val faceRecognitionProcessor by lazy {
+        FaceRecognitionProcessor(
+            context,
+            overlay,
+            fabAdd
+        )
+    }
 
     private val realTimeOpts = FaceDetectorOptions.Builder()
         .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
@@ -44,21 +55,28 @@ class FaceContourDetectionProcessor(
         }
     }
 
-    override fun onSuccess(
+    override  fun onSuccess(
         results: List<Face>,
         graphicOverlay: GraphicOverlay,
-        rect: Rect, bitmap: Bitmap
+        bitmap: Bitmap
     ) {
         graphicOverlay.clear()
+
         results.forEach {
-            val faceGraphic = FaceContourGraphic(graphicOverlay, it, rect)
+            val faceGraphic = FaceContourGraphic(graphicOverlay, it)
+            if (!overlay.areDimsInit) {
+                faceGraphic.frameHeight = bitmap.height
+                faceGraphic.frameWidth = bitmap.width
+            }
             graphicOverlay.add(faceGraphic)
 
             // Recognize
             faceRecognitionProcessor.recognize(it, bitmap, faceGraphic)
         }
-        graphicOverlay.postInvalidate()
 
+        graphicOverlay.postInvalidate()
+        isProcessing = false
+        Log.d("Processing", "Recognize Process Complete")
     }
 
     override fun onFailure(e: Exception) {

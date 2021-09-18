@@ -1,17 +1,19 @@
 package com.shaon2016.facerecongnition.face_detection
 
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Rect
+import android.graphics.*
+import android.util.Log
+import androidx.core.graphics.toRectF
 import com.google.mlkit.vision.face.Face
 import com.shaon2016.facerecongnition.camera.GraphicOverlay
 
 class FaceContourGraphic(
     private val overlay: GraphicOverlay,
-    private val face: Face,
-    private val imageRect: Rect
+    private val face: Face
 ) : GraphicOverlay.Graphic(overlay) {
+    private var output2OverlayTransform: Matrix = Matrix()
+    var frameHeight = 0
+    var frameWidth = 0
+
 
     private val facePositionPaint: Paint
     private val idPaint: Paint
@@ -40,14 +42,23 @@ class FaceContourGraphic(
     }
 
     override fun draw(canvas: Canvas?) {
-        val rect = calculateRect(
-            imageRect.height().toFloat(),
-            imageRect.width().toFloat(),
-            face.boundingBox
-        )
-        canvas?.drawRect(rect, boxPaint)
+        if (!overlay.areDimsInit) {
+            val viewWidth = canvas!!.width.toFloat()
+            val viewHeight = canvas.height.toFloat()
+            val xFactor: Float = viewWidth / frameWidth.toFloat()
+            val yFactor: Float = viewHeight / frameHeight.toFloat()
+            // Scale and mirror the coordinates ( required for front lens )
+            output2OverlayTransform.preScale(xFactor, yFactor)
+            output2OverlayTransform.postScale(-1f, 1f, viewWidth / 2f, viewHeight / 2f)
+            overlay.areDimsInit = true
+        } else {
+            val bBox = face.boundingBox.toRectF()
+            output2OverlayTransform.mapRect(bBox)
 
-        canvas?.drawText(recognizedTitle, rect.left, rect.top, titlePaint)
+            canvas?.drawRect(bBox, boxPaint)
+
+            canvas?.drawText(recognizedTitle, bBox.left, bBox.top, titlePaint)
+        }
     }
 
     companion object {
