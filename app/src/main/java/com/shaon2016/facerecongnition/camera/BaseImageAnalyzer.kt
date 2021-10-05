@@ -63,8 +63,7 @@ abstract class BaseImageAnalyzer<T> : ImageAnalysis.Analyzer {
 
     abstract fun stop()
 
-    protected abstract suspend
-    fun onSuccess(
+    protected abstract suspend fun onSuccess(
         results: T,
         graphicOverlay: GraphicOverlay,
         bitmap: Bitmap
